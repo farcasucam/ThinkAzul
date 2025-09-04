@@ -17,8 +17,7 @@ The project brings together several research groups:
 - 🌱 [Tecnologías Aplicadas a la Salud Ambiental](https://investigacion.ucam.edu/grupos/grupo/tecnologias-aplicadas-a-la-salud-ambiental)
 
 ## Dataset Overview 📊
-
-The dataset (`Parametros_Aguas.csv`) contains water quality measurements taken periodically at two locations:
+The dataset ([`Parametros_Aguas.csv`](Parametros_Aguas.csv)) contains water quality measurements taken periodically at two locations:
 
 - 📍 **Estacio** ![Estacio](Estacio.png)
 - 📍 **Marchamalo** ![Marchamalo](Marchamalo.png)
