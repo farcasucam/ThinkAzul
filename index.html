@@ -283,7 +283,7 @@
         // Histogram data (all values for selected series and places)
         let histValues = [];
         placesArr.forEach(place => {
-            const placeRows = placeData[place].filter(row => selectedDates.includes(row[1]));
+            const placeRows = placeData[place].filter(row => selectedDates.includes(row[0]));
             selectedSeries.forEach(series => {
                 const colIdx = headers.indexOf(series);
                 histValues = histValues.concat(placeRows.map(row => parseValue(row[colIdx])).filter(v => v !== null));

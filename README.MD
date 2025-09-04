@@ -1,6 +1,11 @@
+
 # ThinkInAzul Water Quality Visualization Web 🌊
 
 Welcome to the ThinkInAzul Water Quality Visualization platform. This web application enables you to explore, visualize, and download water quality data collected from two key locations in the Mar Menor region: Estacio and Marchamalo.
+
+<div align="center">
+	<a href="https://farcasucam.github.io/ThinkAzul/" style="font-size:1em; font-weight:bold; color:#1976d2; background:#F4E8C8; border-radius:8px; padding:12px 24px; display:inline-block; text-decoration:none; border:2px solid #1976d2; margin-bottom:24px;">🔗 Web App</a>
+</div>
 
 ## About the Project 🏛️
 
@@ -12,8 +17,8 @@ This project is part of the ThinkInAzul initiative ([thinkinazul.es](https://thi
 
 The project brings together several research groups:
 
-- 📡 [Telecomunicaciones, IoT, SmartCity, Sonido y Acústica](https://investigacion.ucam.edu/grupos/grupo/telecomunicaciones-iot-smartcity-sonido-acustica)
-- 🏃‍♂️ [UKEIM (Unidad de Kinesiología y Ergonomía en Investigación y Medicina)](https://investigacion.ucam.edu/grupos/grupo/ukeim)
+- 📡 [GRITA: Grupo de Investigación en Telecomunicaciones Avanzadas](https://investigacion.ucam.edu/grupos/grupo/telecomunicaciones-iot-smartcity-sonido-acustica)
+- 🏃‍♂️ [UKEIM: Universal Knowledge Enhancement by Multidisciplinary Implementation](https://investigacion.ucam.edu/grupos/grupo/ukeim)
 - 🌱 [Tecnologías Aplicadas a la Salud Ambiental](https://investigacion.ucam.edu/grupos/grupo/tecnologias-aplicadas-a-la-salud-ambiental)
 
 ## Dataset Overview 📊
