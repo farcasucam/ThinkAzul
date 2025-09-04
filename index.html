@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Parameters Visualization</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+    body { font-family: 'Roboto', Arial, sans-serif; background: #F4E8C8; margin: 0; padding: 0; }
+    .think-header { background: #F4E8C8; color: #324093; padding: 24px 0 12px 0; text-align: center; }
+    .think-header img { height: 64px; vertical-align: middle; margin-bottom: 8px; }
+    .think-header h1 { font-size: 2.2em; font-weight: 700; margin: 0; letter-spacing: 1px; }
+    .container { max-width: 1200px; margin: 32px auto; background: #F4E8C8; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h2 { color: #324093; margin-top: 0; }
+    .controls { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; justify-content: center; }
+    .controls > div { min-width: 200px; }
+    label { font-weight: 700; margin-bottom: 8px; display: block; color: #324093; }
+    select, input[type=file] { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #b3d6e6; }
+    #timeline { margin: 32px 0; height: 80px; }
+    .timeline-label { font-size: 10px !important; }
+    .charts { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
+    .chart-container { background: #F4E8C8; border-radius: 8px; padding: 24px; box-shadow: 0 1px 4px #0001; min-width: 400px; }
+    .chart-container canvas { background: #F4E8C8; border-radius: 6px; }
+    .timeline-dot { cursor: pointer; }
+    .timeline-dot.selected { stroke: #1976d2; stroke-width: 3px; }
+    .timeline-dot:hover { stroke: #1976d2; stroke-width: 2px; }
+    .think-footer { background: #F4E8C8; color: #324093; text-align: center; padding: 18px 0 12px 0; margin-top: 48px; font-size: 1.1em; }
+    .think-footer .logos { margin: 12px 0; }
+    .think-footer img { height: 32px; margin: 0 12px; vertical-align: middle; }
+    .date-range-controls { margin-bottom:0; justify-content:center; display:flex; }
+    .date-range-controls > div { min-width:400px; }
+    #dateRangeLabel { text-align:center; margin-top:8px; color:#324093; font-weight:700; }
+    input[type=range] { width:45%; }
+    </style>
+</head>
+<body>
+    <div class="think-header">
+    <img src="https://www.ucam.edu/sites/default/files/public/la-universidad/identidad-visual/logos-ucam/logo-vertical-ucam-universidad-azul.png" alt="UCAM Logo" style="height:100px; margin-right:24px; vertical-align:middle;">
+    <img src="https://thinkinazul.es/wp-content/uploads/thinkazul.svg" alt="ThinkInAzul Logo">
+        <h1>ThinkInAzul - Water Parameters Visualization</h1>
+    </div>
+    <div class="container">
+        <div class="controls">
+            <div>
+                <label for="placeSelect">Place (Select one or more)</label>
+                <select id="placeSelect" multiple size="2"></select>
+            </div>
+            <div>
+                <label for="seriesSelect">Time Series (Select one or more)</label>
+                <select id="seriesSelect" multiple size="8"></select>
+            </div>
+        </div>
+        <div id="timeline"></div>
+        <div class="date-range-controls">
+            <div>
+                <label for="dateRange">Date Range</label>
+                <input type="range" id="dateStart" min="0" value="0">
+                <input type="range" id="dateEnd" min="0" value="0">
+                <div id="dateRangeLabel"></div>
+            </div>
+        </div>
+        <div class="charts">
+            <div class="chart-container">
+                <h2>Line Chart</h2>
+                <canvas id="lineChart" width="500" height="300"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Histogram</h2>
+                <canvas id="histChart" width="500" height="300"></canvas>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:24px;">
+            <a href="Parametros_Aguas.csv" download style="color:#324093; font-weight:bold; text-decoration:underline; font-size:1.1em;">Descargar datos CSV</a>
+        </div>
+    </div>
+    <div class="think-footer">
+        <div class="logos">
+            <img src="https://thinkinazul.es/wp-content/uploads/logos.svg" alt="Ministerio de Ciencia e Innovación" style="height:150px;">
+        </div>
+        <div style="font-size:0.9em; margin-top:8px;"><a href="https://thinkinazul.es/" style="color:#324093;text-decoration:underline;">ThinkInAzul</a></div>
+    </div>
+    <script>
+    // --- CSV Parsing and Data Preparation ---
+    let rawData = [];
+    let headers = [];
+    let places = [];
+    let dateList = [];
+    let selectedPlace = '';
+    let selectedSeries = [];
+    let selectedDates = [];
+    let placeData = {};
+    let dateStartIdx = 0;
+    let dateEndIdx = 0;
+
+    // Helper: Convert value with , as decimal
+    function parseValue(val) {
+        if (!val || val.trim() === '') return null;
+        val = val.replace(',', '.');
+        if (val.match(/^<.*$/)) return null; // skip <0.02 etc
+        let num = Number(val);
+        return isNaN(num) ? null : num;
+    }
+
+    // Automatically load CSV from workspace
+    fetch('Parametros_Aguas.csv')
+        .then(response => response.text())
+        .then(text => {
+            Papa.parse(text, {
+                delimiter: ';',
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processCSV(results.data);
+                }
+            });
+        });
+
+    function processCSV(data) {
+        headers = data[0];
+        rawData = data.slice(1).filter(row => row.length > 2);
+        // Get places
+        places = Array.from(new Set(rawData.map(row => row[1].trim())));
+        // Get dates
+        dateList = rawData.map(row => row[0]);
+        dateStartIdx = 0;
+        dateEndIdx = dateList.length - 1;
+        // Build placeData: { place: [rows] }
+        placeData = {};
+        places.forEach(place => {
+            placeData[place] = rawData.filter(row => row[1].trim() === place);
+        });
+        // Populate selectors
+        populatePlaceSelect();
+        populateSeriesSelect();
+        drawTimeline();
+        setupDateRange();
+        selectedPlace = places[0];
+        selectedSeries = [headers[2]];
+        selectedDates = dateList.slice();
+        updateCharts();
+    }
+
+    function setupDateRange() {
+        const startSlider = document.getElementById('dateStart');
+        const endSlider = document.getElementById('dateEnd');
+        startSlider.max = dateList.length - 1;
+        endSlider.max = dateList.length - 1;
+        startSlider.value = dateStartIdx;
+        endSlider.value = dateEndIdx;
+        updateDateRangeLabel();
+        startSlider.oninput = endSlider.oninput = function() {
+            let start = Math.min(Number(startSlider.value), Number(endSlider.value));
+            let end = Math.max(Number(startSlider.value), Number(endSlider.value));
+            dateStartIdx = start;
+            dateEndIdx = end;
+            selectedDates = dateList.slice(dateStartIdx, dateEndIdx + 1);
+            updateDateRangeLabel();
+            drawTimeline();
+            updateCharts();
+        };
+    }
+    function updateDateRangeLabel() {
+        document.getElementById('dateRangeLabel').textContent = `${dateList[dateStartIdx]} → ${dateList[dateEndIdx]}`;
+    }
+
+    function populatePlaceSelect() {
+        const sel = document.getElementById('placeSelect');
+        sel.innerHTML = '';
+        places.forEach(place => {
+            const opt = document.createElement('option');
+            opt.value = place;
+            opt.textContent = place;
+            sel.appendChild(opt);
+        });
+        sel.onchange = function() {
+            selectedPlace = Array.from(sel.selectedOptions).map(o => o.value);
+            updateCharts();
+        };
+    }
+
+    function populateSeriesSelect() {
+        const sel = document.getElementById('seriesSelect');
+        sel.innerHTML = '';
+        for (let i = 3; i < headers.length; i++) {
+            const opt = document.createElement('option');
+            opt.value = headers[i];
+            opt.textContent = headers[i];
+            sel.appendChild(opt);
+        }
+        sel.onchange = function() {
+            selectedSeries = Array.from(sel.selectedOptions).map(o => o.value);
+            updateCharts();
+        };
+    }
+
+    // --- Timeline Visualization (D3.js) ---
+    function drawTimeline() {
+        const timelineDiv = document.getElementById('timeline');
+        timelineDiv.innerHTML = '';
+        const width = timelineDiv.offsetWidth || 1000;
+        const height = 80;
+        const svg = d3.select(timelineDiv).append('svg')
+            .attr('width', width)
+            .attr('height', height);
+        // Dates as x
+        const x = d3.scalePoint()
+            .domain(dateList)
+            .range([40, width-40]);
+        svg.append('line')
+            .attr('x1', 40).attr('x2', width-40)
+            .attr('y1', height/2).attr('y2', height/2)
+            .attr('stroke', '#bbb').attr('stroke-width', 2);
+        // Dots
+        svg.selectAll('circle')
+            .data(dateList)
+            .enter()
+            .append('circle')
+            .attr('cx', d => x(d))
+            .attr('cy', height/2)
+            .attr('r', 8)
+            .attr('fill', (d,i) => (i >= dateStartIdx && i <= dateEndIdx ? '#1976d2' : '#bbb'))
+            .attr('class', (d,i) => 'timeline-dot' + (i >= dateStartIdx && i <= dateEndIdx ? ' selected' : ''));
+        // Date labels (every 5th, font smaller, no year)
+        svg.selectAll('text')
+            .data(dateList.filter((d,i) => i%5===0))
+            .enter()
+            .append('text')
+            .attr('x', d => x(d))
+            .attr('y', height/2 + 28)
+            .attr('text-anchor', 'middle')
+            .attr('class', 'timeline-label')
+            .attr('fill', '#444')
+            .text(d => {
+                // Remove year (supports dd/mm/yyyy or yyyy-mm-dd)
+                if (d.includes('/')) {
+                    let parts = d.split('/');
+                    if (parts.length === 3) return `${parts[0]}/${parts[1]}`;
+                } else if (d.includes('-')) {
+                    let parts = d.split('-');
+                    if (parts.length === 3) return `${parts[2]}-${parts[1]}`;
+                }
+                return d;
+            });
+    }
+
+    // --- Chart.js Line and Histogram ---
+    let lineChart, histChart;
+    function updateCharts() {
+        if (!selectedPlace || !selectedSeries.length) return;
+        let rows = [];
+        let placesArr = Array.isArray(selectedPlace) ? selectedPlace : [selectedPlace];
+        let labels = [];
+        let datasets = [];
+        // Build datasets: one for each place/series combination
+        placesArr.forEach((place, pIdx) => {
+            const placeRows = placeData[place].filter(row => selectedDates.includes(row[0]));
+            if (labels.length < placeRows.length) labels = placeRows.map(row => row[0]);
+            selectedSeries.forEach((series, sIdx) => {
+                const colIdx = headers.indexOf(series);
+                datasets.push({
+                    label: `${series} (${place})`,
+                    data: placeRows.map(row => parseValue(row[colIdx])),
+                    borderColor: d3.schemeCategory10[(pIdx * selectedSeries.length + sIdx) % 10],
+                    backgroundColor: d3.schemeCategory10[(pIdx * selectedSeries.length + sIdx) % 10],
+                    tension: 0.2,
+                    spanGaps: true,
+                });
+            });
+        });
+        // Line chart
+        if (lineChart) lineChart.destroy();
+        lineChart = new Chart(document.getElementById('lineChart').getContext('2d'), {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { x: { title: { display: true, text: 'Date' } }, y: { title: { display: true, text: 'Value' } } }
+            }
+        });
+        // Histogram data (all values for selected series and places)
+        let histValues = [];
+        placesArr.forEach(place => {
+            const placeRows = placeData[place].filter(row => selectedDates.includes(row[1]));
+            selectedSeries.forEach(series => {
+                const colIdx = headers.indexOf(series);
+                histValues = histValues.concat(placeRows.map(row => parseValue(row[colIdx])).filter(v => v !== null));
+            });
+        });
+        // Histogram
+        if (histChart) histChart.destroy();
+        histChart = new Chart(document.getElementById('histChart').getContext('2d'), {
+            type: 'bar',
+            data: histogramData(histValues),
+            options: {
+                responsive: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { title: { display: true, text: 'Value' } }, y: { title: { display: true, text: 'Count' } } }
+            }
+        });
+    }
+
+    // Helper: Histogram binning
+    function histogramData(values) {
+        if (!values.length) return { labels: [], datasets: [{ data: [] }] };
+        const min = Math.min(...values), max = Math.max(...values);
+        const bins = 12;
+        const step = (max-min)/bins || 1;
+        let counts = Array(bins).fill(0);
+        values.forEach(v => {
+            let idx = Math.floor((v-min)/step);
+            if (idx >= bins) idx = bins-1;
+            if (idx < 0) idx = 0;
+            counts[idx]++;
+        });
+        const labels = Array.from({length: bins}, (_,i) => `${(min+i*step).toFixed(2)}-${(min+(i+1)*step).toFixed(2)}`);
+        return {
+            labels,
+            datasets: [{ label: 'Count', data: counts, backgroundColor: '#1976d2' }]
+        };
+    }
+    </script>
+</body>
+</html>
