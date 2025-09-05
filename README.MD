@@ -53,7 +53,7 @@ Values are separated by semicolons (`;`) and use commas (`,`) as decimal points.
 5. **Download Data** ⬇️: Click the download link below the charts to get the raw CSV data for your own analysis.
 
 ## Acknowledgements 🙏
-- Financiado por Ia Unión Europea: NextGenerationEU
+- Unión Europea: NextGenerationEU
 - Ministerio de Ciencia, Innovación y Universidades
 - Plan de Recuperación, Transformación y Resiliencia
 - Región de Muurcia
@@ -61,6 +61,7 @@ Values are separated by semicolons (`;`) and use commas (`,`) as decimal points.
 - UCAM
 
 For more information, visit [thinkinazul.es](https://thinkinazul.es/).
+
 
 
 
