@@ -10,9 +10,9 @@ Welcome to the ThinkInAzul Water Quality Visualization platform. This web applic
 ## About the Project 🏛️
 
 This project is part of the ThinkInAzul initiative ([thinkinazul.es](https://thinkinazul.es/)), funded by:
-![Patreons]patreons.png)
+![Patreons](Patreons.png)
 
-The project brings together several research groups in ([UCAM]https://www.ucam.edu/):
+The project brings together several research groups in ([UCAM](https://www.ucam.edu/)):
 
 - 📡 [GRITA: Grupo de Investigación en Telecomunicaciones Avanzadas](https://investigacion.ucam.edu/grupos/grupo/telecomunicaciones-iot-smartcity-sonido-acustica)
 - 🏃‍♂️ [UKEIM: Universal Knowledge Enhancement by Multidisciplinary Implementation](https://investigacion.ucam.edu/grupos/grupo/ukeim)
@@ -61,6 +61,7 @@ Values are separated by semicolons (`;`) and use commas (`,`) as decimal points.
 - UCAM
 
 For more information, visit [thinkinazul.es](https://thinkinazul.es/).
+
 
 
 
