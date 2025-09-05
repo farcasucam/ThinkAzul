@@ -10,7 +10,7 @@ Welcome to the ThinkInAzul Water Quality Visualization platform. This web applic
 ## About the Project 🏛️
 
 This project is part of the ThinkInAzul initiative ([thinkinazul.es](https://thinkinazul.es/)), funded by:
-![Patreons](https://thinkinazul.es/wp-content/uploads/logos.svg
+![Patreons](https://thinkinazul.es/wp-content/uploads/logos.svg)
 
 The project brings together several research groups:
 
@@ -53,8 +53,8 @@ Values are separated by semicolons (`;`) and use commas (`,`) as decimal points.
 5. **Download Data** ⬇️: Click the download link below the charts to get the raw CSV data for your own analysis.
 
 ## Acknowledgements 🙏
-
-This platform is made possible thanks to the support of ThinkInAzul, Ministerio de Ciencia e Innovación, Fundación Séneca, UCAM, and the dedicated research groups listed above.
+![Patreons](https://thinkinazul.es/wp-content/uploads/logos.svg)
 
 For more information, visit [thinkinazul.es](https://thinkinazul.es/).
+
 
