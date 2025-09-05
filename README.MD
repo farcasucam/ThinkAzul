@@ -10,10 +10,7 @@ Welcome to the ThinkInAzul Water Quality Visualization platform. This web applic
 ## About the Project 🏛️
 
 This project is part of the ThinkInAzul initiative ([thinkinazul.es](https://thinkinazul.es/)), funded by:
-
-- 🏢 **Ministerio de Ciencia e Innovación**
-- 🧬 **Fundación Séneca**
-- 🎓 **UCAM Universidad Católica de Murcia**
+![Patreons](https://thinkinazul.es/wp-content/uploads/logos.svg
 
 The project brings together several research groups:
 
@@ -60,3 +57,4 @@ Values are separated by semicolons (`;`) and use commas (`,`) as decimal points.
 This platform is made possible thanks to the support of ThinkInAzul, Ministerio de Ciencia e Innovación, Fundación Séneca, UCAM, and the dedicated research groups listed above.
 
 For more information, visit [thinkinazul.es](https://thinkinazul.es/).
+
